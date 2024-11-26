@@ -15,16 +15,17 @@ namespace DAL.Data
         {
         }
 
-
-
-        // DbSet для сущностей //entities
         public DbSet<UserLogin> UsersLogins { get; set; }
-     
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            optionsBuilder.UseSqlServer("Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\Users\\vova\\Documents\\PartnerShip.mdf;Integrated Security=True;Connect Timeout=30;Encrypt=True");
+            modelBuilder.Entity<UserLogin>()
+                .HasKey(u => u.UserId); // Указываем первичный ключ
+
+            base.OnModelCreating(modelBuilder);
         }
+
     }
-    
+
 }

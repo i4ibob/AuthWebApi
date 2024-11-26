@@ -16,9 +16,10 @@ namespace AuthWebApi.Controllers
         }
 
         [HttpPost("login")]
-        public IActionResult Login(string loginOrEmail, string password)
-        { 
-            return Ok(loginOrEmail);
+        public IActionResult Login([FromBody] UserLoginRequest  userLoginRequest)
+        {
+            userLoginService.Login(userLoginRequest.UserLoginOrEmail, userLoginRequest.Password);
+            return Ok(userLoginRequest.UserLoginOrEmail);
         }
 
     }

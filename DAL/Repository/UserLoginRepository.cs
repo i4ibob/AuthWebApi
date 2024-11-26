@@ -6,15 +6,17 @@ using System.Text;
 using System.Threading.Tasks;
 using DAL.Data;
 using DAL.Models;
- 
+using DAL.Repository.Interfaces;
+using Microsoft.EntityFrameworkCore;
+
 namespace DAL.Repository
 {
-    public class UserLoginRepository
+    public class UserLoginRepository : IUserLoginRepository
     {
         private readonly AuthDbContext _context;
 
-        public UserLoginRepository(AuthDbContext context) 
-        { 
+        public UserLoginRepository(AuthDbContext context)
+        {
             _context = context;
         }
 
@@ -26,5 +28,12 @@ namespace DAL.Repository
             // сохраняем через UOW
         }
 
+
+        public async Task<UserLogin?> GetAsync(string loginOrEmail)
+        {
+            return await _context.UsersLogins
+                .FirstOrDefaultAsync(a => a.Login == loginOrEmail || a.Email == loginOrEmail);
+        }
     }
 }
+        
