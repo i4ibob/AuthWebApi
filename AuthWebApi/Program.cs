@@ -4,6 +4,8 @@ using DAL.Data;
 using BL.Services;
 using DAL.Repository;
 using DAL.Repository.Interfaces;
+using BL.Auxilary;
+using BL.Services.Interfaces;
 internal class Program
 {
     private static void Main(string[] args)
@@ -19,8 +21,12 @@ internal class Program
 
         builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
         builder.Services.AddScoped<IUserLoginRepository, UserLoginRepository>();
+        builder.Services.AddScoped<IJwtService, JwtService>();
         builder.Services.AddScoped<UserLoginService>();
-
+        builder.Services.AddScoped<JwtService>();
+        builder.Services.Configure<AuthSettings>(
+            builder.Configuration.GetSection("AuthSettings"));
+        builder.Services.AddAuth(builder.Configuration);
 
 
         builder.Services.AddControllers();
@@ -37,10 +43,11 @@ internal class Program
             app.UseSwaggerUI();
         }
 
+       
+
         app.UseHttpsRedirection();
-
+        app.UseAuthentication(); //
         app.UseAuthorization();
-
         app.MapControllers();
 
         app.Run();

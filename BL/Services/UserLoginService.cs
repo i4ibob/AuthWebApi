@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using BL.Services.Interfaces;
 using DAL.Repository;
 using DAL.Models;
 using DAL.Repository.UoW;
@@ -12,11 +13,13 @@ namespace BL.Services
 
         private readonly IUnitOfWork _unitOfWork;
         private readonly IUserLoginRepository _userLoginRepository;
+        private readonly IJwtService _jwtService;
 
-        public UserLoginService(IUnitOfWork unitOfWork, IUserLoginRepository userLoginRepository)
+       public UserLoginService(IUnitOfWork unitOfWork, IUserLoginRepository userLoginRepository, IJwtService jwtService)
         {
             _unitOfWork = unitOfWork;
             _userLoginRepository = userLoginRepository;
+            _jwtService = jwtService;
         }
 
 
@@ -38,15 +41,19 @@ namespace BL.Services
         }
 
 
-        public async Task Login(string loginOrEmail, string password)
+        public async Task<string> Login(string loginOrEmail, string password)
         {
             var account = await _userLoginRepository.GetAsync(loginOrEmail);
-           var result = new PasswordHasher<UserLogin>()
-                .VerifyHashedPassword(account, account.PasswordHash, password);
-            if (result == PasswordVerificationResult.Success) 
-            { 
 
-            //Generate token
+            if (account == null)
+                throw new Exception("User not found");
+
+            var result = new PasswordHasher<UserLogin>()
+                .VerifyHashedPassword(account, account.PasswordHash, password);
+
+            if (result == PasswordVerificationResult.Success)
+            {
+                return _jwtService.GenerateToken(account);
             }
             else
             {
