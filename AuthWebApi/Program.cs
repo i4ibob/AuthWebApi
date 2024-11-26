@@ -29,6 +29,28 @@ internal class Program
         builder.Services.AddAuth(builder.Configuration);
 
 
+        builder.Services.ConfigureApplicationCookie(options =>
+        {
+            options.Cookie.HttpOnly = true; // Запрещает доступ к куке через JS
+            options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // Кука будет работать только через HTTPS
+        });
+
+
+        // подключаем cors
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("AllowSpecificOrigin", policy =>
+            {
+                policy.WithOrigins("https://example.com", "https://example2.com") // Указать разрешённые домены
+                //policy.AllowAnyOrigin(); // Открывает доступ всем
+                      .AllowAnyHeader()                   // Разрешить любые заголовки
+                      .AllowAnyMethod()                   // Разрешить любые HTTP-методы (GET, POST и т.д.)
+                      .AllowCredentials();                // Разрешить отправку куки
+            });
+        });
+
+
+
         builder.Services.AddControllers();
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
@@ -43,8 +65,11 @@ internal class Program
             app.UseSwaggerUI();
         }
 
-       
 
+
+
+
+        app.UseCors("AllowSpecificOrigin");
         app.UseHttpsRedirection();
         app.UseAuthentication(); //
         app.UseAuthorization();
